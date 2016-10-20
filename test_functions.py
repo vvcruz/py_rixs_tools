@@ -36,8 +36,10 @@ def test_hamiltonian_diag_1d():
     deltax=(x[-1] - x[0])/(256 - 1)
 
     Eval_harm=fun.harmonic_eigenval(omega,np.linspace(0,4,5))
+    psi_0=np.exp(-(0.5e0 * mu * omega)*x**2)
     
     V_harm=fun.harmonic_pot(omega,mu,x,0.0e0)
     Eval,Evect=fun.hamiltonian_diag_1d(mu,V_harm,deltax)
     
     test.assert_array_almost_equal(Eval[0:5],Eval_harm,6)
+    test.assert_array_almost_equal(psi_0/psi_0.max(),Evect[:,0]/Evect[:,0].max(),5)
