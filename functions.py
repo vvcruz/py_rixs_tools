@@ -2,8 +2,19 @@ import numpy as np
 from numpy import linalg as LA
 
 def harmonic_pot(omega,mass,x,x0):
+    """
+    harmonic oscillator potential
+    """
+    k=mass * (omega**2)
     return 0.5e+0 * k * (x - x0)**2
 
+def harmonic_eigenval(omega,n):
+    """
+    eigenvalues of a harmonic oscillator
+    """
+    return omega * (n + 0.5e+0)
+
+#---------------------------------------------------------------------------------
 
 def kinetic_op_1d(m,deltax,n):
     """
@@ -75,7 +86,7 @@ def solve_eigenstates(H):
 
 #------------------------------------------------------------
 
-def hamilonian_diag_1d(mu,V,deltax):
+def hamiltonian_diag_1d(mu,V,deltax):
     """
      Diagonalizes a 1D hamiltonian with 4th order centered differenece kinetic energy operator
     
@@ -93,3 +104,5 @@ def hamilonian_diag_1d(mu,V,deltax):
     eigen_val,eigen_vec=solve_eigenstates(H)
 
     return eigen_val,eigen_vec
+
+#---------------------------------------------------------------------------------
