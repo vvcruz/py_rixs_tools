@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import linalg as LA
 
-def harmonic_pot(k,x,x0):
+def harmonic_pot(omega,mass,x,x0):
     return 0.5e+0 * k * (x - x0)**2
 
 
