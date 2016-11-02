@@ -1,5 +1,6 @@
 import numpy as np
 from numpy import linalg as LA
+from scipy.integrate import simps
 
 def harmonic_pot(omega,mass,x,x0):
     """
@@ -106,3 +107,36 @@ def hamiltonian_diag_1d(mu,V,deltax):
     return eigen_val,eigen_vec
 
 #---------------------------------------------------------------------------------
+
+def franck_condon(x,u,w,dipole=None):
+    """
+    computes the franck-condon amplitude between real vectors u and w FC = < u | w >
+    """
+    if(dipole == None):
+        dipole = np.ones(x.shape,dtype=float)
+
+    deltax=x[1]-x[0]
+    fc=simps((u * dipole * w),x)/deltax
+    return fc
+
+#---------------------------------------------------------------------------------
+
+def all_franck_condon(x,u,w,dipole=None):
+    """
+    computes the franck condon amplitude matrix between two sets of vectors u and w
+    """
+    n=u.shape[1]
+    m=w.shape[1]
+
+    if(dipole == None):
+        dipole = np.ones(x.shape,dtype=float)
+
+    fc=np.zeros((n,m),dtype=float)
+    for i in range(n):
+        for j in range(m):
+            fc[i,j]=franck_condon(x,u[:,i],w[:,j],dipole)
+    return fc
+
+#---------------------------------------------------------------------------------
+
+
