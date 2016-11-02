@@ -139,4 +139,68 @@ def all_franck_condon(x,u,w,dipole=None):
 
 #---------------------------------------------------------------------------------
 
+def lorentzian(x,y):
+    """
+    Lorentzian function with witdh y
+    """
+    return y/(np.pi*(x**2 + y**2))
 
+#---------------------------------------------------------------------------------
+
+def xas_cross_section(omega,fc_gc,omega_gc,e0,ec,Gamma):
+    """
+    computes the absorption cross section
+
+    omega : desired incoming photon energies (in a.u.)
+    fc_gc : franck-condon amplitude array between electronic states <c|d|g>
+    omega_gc : energy difference between the minimum of the |g> and |c> PES (in a.u.)
+    e0 : initial state energy (in a.u.)
+    ec : array with the vibrational energies of state |c> (in a.u.)
+    Gamma : lifetime broadening of state |c>
+    """
+
+    
+    sig_xas=np.zeros_like(omega)
+    
+    for i in range(fc_gc.size):
+        sig_xas=sig_xas+ (fc_gc[i]**2)*lorentzian(omega -omega_gc-(ec[i]-e0),Gamma)
+    
+    return sig_xas
+    
+
+#---------------------------------------------------------------------------------
+
+def rixs_cross_section(omega_in,omega_out,fc_gc,fc_fc,omega_gc,omega_gf,e0,ec,ef,Gamma,Gammaf):
+    """
+    computes the absorption cross section
+
+    omega_in  : desired incoming photon energy (in a.u.)
+    omega_out : desired outgoing photon energies (in a.u.)
+    fc_gc : franck-condon amplitude array between electronic states <c|d|g>
+    fc_fc : franck-condon amplitude array between electronic states <c|d|f>
+    omega_gc : energy difference between the minimum of the |g> and |c> PES (in a.u.)
+    omega_gf : energy difference between the minimum of the |g> and |f> PES (in a.u.)
+    e0 : initial state energy (in a.u.)
+    ec : array with the vibrational energies of state |c> (in a.u.)
+    ef : array with the vibrational energies of state |f> (in a.u.)
+    Gamma : lifetime broadening of state |c>
+    Gammaf : lifetime broadening of state |f>
+    """
+
+    nc=fc_fc.shape[0]
+    nf=fc_fc.shape[1]
+    sig_rixs=np.zeros_like(omega_out)
+    F_re=np.zeros(nf,dtype=float)
+    F_im=np.zeros(nf,dtype=float)
+
+
+    for k in range(nf):
+        for i in range(nc):
+            F_wk=np.pi*(fc_gc[i] * fc_fc[i,k])*lorentzian(omega_in -omega_gc-(ec[i]-e0),Gamma)/Gamma
+            F_re[k]=F_re[k] +  F_wk * (omega_in - omega_gc + e0 -ec[i])
+            F_im[k]=F_im[k] -  F_wk * Gamma
+ 
+        sig_rixs=sig_rixs + (F_re[k]**2 + F_im[k]**2)*lorentzian(omega_in - omega_out - omega_gf -ef[k] + e0,Gammaf)
+        
+    return sig_rixs
+    

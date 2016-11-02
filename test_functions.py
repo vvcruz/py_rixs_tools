@@ -4,6 +4,8 @@
 import numpy as np
 import numpy.testing as test
 import functions as fun
+import matplotlib.pyplot as plt
+
 
 def test_harmonic_pot():
     V=fun.harmonic_pot(1.0,1.0,1.0,0.0)
@@ -78,6 +80,8 @@ def test_franck_condon():
     test.assert_almost_equal(nFC11,1.0e0)
     test.assert_almost_equal(nFC12,0.0e0)
 
+#------------------------------------------------------------
+
 def test_all_franck_condon():
     x=np.linspace(-2.0,2.0,256)
     omega=0.45e0/27.2114e0
@@ -107,3 +111,56 @@ def test_all_franck_condon():
 
     FCij=fun.all_franck_condon(x,Evect[:,0:5],Evect[:,0:3],dipole=x)
     test.assert_array_almost_equal(np.abs(FC_check),np.abs(FCij),5)
+
+#----------------------------------------------------------------------
+
+def test_xas_cross_section():
+    x=np.linspace(-2.0,2.0,256)
+    omega=0.45e0/27.2114e0
+    mu=1713.52e0
+    deltax=(x[-1] - x[0])/(256 - 1)
+
+    V_g=fun.harmonic_pot(omega,mu,x,0.0e0)
+    eg,psi_g=fun.hamiltonian_diag_1d(mu,V_g,deltax)
+
+    V_c=fun.harmonic_pot(omega,mu,x,0.3e0)
+    ec,psi_c=fun.hamiltonian_diag_1d(mu,V_c,deltax)
+
+    fc_gc=fun.all_franck_condon(x,psi_g[:,0:6],psi_c[:,0:6])
+    
+    sig_xas=fun.xas_cross_section(500.0,fc_gc[0,:],300.0/27.2114,eg[0],ec[0:6],0.08/27.2114)
+    test.assert_almost_equal(sig_xas,0.0)
+    
+
+    om=np.linspace(295.0/27.2114,305.0/27.2114,512)
+    sig_xas=fun.xas_cross_section(om,fc_gc[0,:],300.0/27.2114,eg[0],ec[0:6],0.08/27.2114)
+    plt.plot(om*27.2114,sig_xas,'-')
+    plt.show()
+
+    assert sig_xas.size == om.size
+
+#----------------------------------------------------------------------
+
+def test_rixs_cross_section():
+    x=np.linspace(-2.0,2.0,256)
+    omega=0.45e0/27.2114e0
+    mu=1713.52e0
+    deltax=(x[-1] - x[0])/(256 - 1)
+
+    V_g=fun.harmonic_pot(omega,mu,x,0.0e0)
+    eg,psi_g=fun.hamiltonian_diag_1d(mu,V_g,deltax)
+
+    V_c=fun.harmonic_pot(omega,mu,x,0.3e0)
+    ec,psi_c=fun.hamiltonian_diag_1d(mu,V_c,deltax)
+
+    fc_gc=fun.all_franck_condon(x,psi_g[:,0:6],psi_c[:,0:3])
+    fc_cg=fun.all_franck_condon(x,psi_c[:,0:3],psi_g[:,0:6])
+    
+    om_in=300.0/27.2114
+    om_out=np.linspace(295.0/27.2114,300.5/27.2114,512)
+    sig_rixs=fun.rixs_cross_section(om_in,om_out,fc_gc[0,:],fc_cg[:,:],300.0/27.2114,0.0,eg[0],ec[0:6],eg[0:6],0.08/27.2114,0.002/27.2114)
+    plt.plot((om_in - om_out)*27.2114,sig_rixs,'-')
+    plt.show()
+
+    assert sig_rixs.size == om_out.size
+    
