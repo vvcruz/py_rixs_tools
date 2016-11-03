@@ -149,7 +149,7 @@ def lorentzian(x,y):
 
 def xas_cross_section(omega,fc_gc,omega_gc,e0,ec,Gamma):
     """
-    computes the absorption cross section
+    computes the absorption cross section from all the previously computed quantities
 
     omega : desired incoming photon energies (in a.u.)
     fc_gc : franck-condon amplitude array between electronic states <c|d|g>
@@ -184,7 +184,7 @@ def rixs_cross_section(omega_in,omega_out,fc_gc,fc_fc,omega_gc,omega_gf,e0,ec,ef
     ec : array with the vibrational energies of state |c> (in a.u.)
     ef : array with the vibrational energies of state |f> (in a.u.)
     Gamma : lifetime broadening of state |c>
-    Gammaf : lifetime broadening of state |f>
+    Gammaf : lifetime broadening of state |f> (default 0.02 eV ~ 7e-4 au
     """
 
     nc=fc_fc.shape[0]
@@ -203,4 +203,65 @@ def rixs_cross_section(omega_in,omega_out,fc_gc,fc_fc,omega_gc,omega_gf,e0,ec,ef
         sig_rixs=sig_rixs + (F_re[k]**2 + F_im[k]**2)*lorentzian(omega_in - omega_out - omega_gf -ef[k] + e0,Gammaf)
         
     return sig_rixs
+
+#-------------------------------------------------------------------------------
+def compute_xas(mu,x,V_g,V_c,Gamma,omega=None,nc=15):
+    """
+    computes the absorption cross section
+
+    mu       : mass in a.u.
+    x        : coordinate space vector 
+    V_g      : PES for state |g>
+    V_c      : PES for state |c>
+    Gamma    : lifetime broadening of state |c> (in a.u.)
+optional:
+    omega    : desired incoming photon energies (in a.u.)
+    nc       : desired number of vibrational levels considereg for |c>
+    """
+
+    omega_gc=V_c.min() - V_g.min()
+    if(omega == None):
+        omega = np.linspace(omega_gc-0.5,omega_gc + 0.5,1024)
+
+    
+    deltax=(x[1] - x[0])
+    eg,psi_g=hamiltonian_diag_1d(mu,V_g - V_g.min(),deltax)
+    ec,psi_c=hamiltonian_diag_1d(mu,V_c - V_c.min(),deltax)
+    fc_gc=all_franck_condon(x,psi_g[:,0:3],psi_c[:,0:nc])
+    sig_xas=xas_cross_section(omega,fc_gc[0,:],omega_gc,eg[0],ec[0:nc],Gamma)
+    return omega,sig_xas
+
+
+#-------------------------------------------------------------------------------
+def compute_rixs(omega_in,mu,x,V_g,V_c,V_f,Gamma,Gammaf=7e-4,omega_out=None,nc=15,nf=15):
+    """
+    computes the absorption cross section
+
+    mu       : mass in a.u.
+    x        : coordinate space vector 
+    V_g      : PES for state |g>
+    V_c      : PES for state |c>
+    V_f      : PES for state |f>
+    omega_gc : energy difference between the minimum of the |g> and |c> PES (in a.u.)
+    omega_gf : energy difference between the minimum of the |g> and |f> PES (in a.u.)
+    Gamma    : lifetime broadening of state |c> (in a.u.)
+optional:
+    omega    : desired incoming photon energies (in a.u.)
+    nc       : desired number of vibrational levels considereg for |c>
+    """
+
+    omega_gc=V_c.min() - V_g.min()
+    omega_gf=V_f.min() - V_g.min()
+    if(omega_out == None):
+        omega_out = np.linspace(omega_in-0.5,omega_in + 0.1,1024)
+
+    deltax=(x[1] - x[0])
+    eg,psi_g=hamiltonian_diag_1d(mu,V_g - V_g.min(),deltax)
+    ec,psi_c=hamiltonian_diag_1d(mu,V_c - V_c.min(),deltax)
+    ef,psi_f=hamiltonian_diag_1d(mu,V_f - V_f.min(),deltax)
+    fc_gc=all_franck_condon(x,psi_g[:,0:3],psi_c[:,0:nc])
+    fc_fc=all_franck_condon(x,psi_c[:,0:nc],psi_f[:,0:nf])
+    
+    sig_rixs=rixs_cross_section(omega_in,omega_out,fc_gc[0,:],fc_fc[:,:],omega_gc,omega_gf,eg[0],ec[0:nc],ef[0:nf],Gamma,Gammaf)
+    return omega_out,sig_rixs
     

@@ -134,8 +134,8 @@ def test_xas_cross_section():
 
     om=np.linspace(295.0/27.2114,305.0/27.2114,512)
     sig_xas=fun.xas_cross_section(om,fc_gc[0,:],300.0/27.2114,eg[0],ec[0:6],0.08/27.2114)
-    plt.plot(om*27.2114,sig_xas,'-')
-    plt.show()
+    #plt.plot(om*27.2114,sig_xas,'-')
+    #plt.show()
 
     assert sig_xas.size == om.size
 
@@ -158,9 +158,40 @@ def test_rixs_cross_section():
     
     om_in=300.0/27.2114
     om_out=np.linspace(295.0/27.2114,300.5/27.2114,512)
-    sig_rixs=fun.rixs_cross_section(om_in,om_out,fc_gc[0,:],fc_cg[:,:],300.0/27.2114,0.0,eg[0],ec[0:6],eg[0:6],0.08/27.2114,0.002/27.2114)
+    sig_rixs=fun.rixs_cross_section(om_in,om_out,fc_gc[0,:],fc_cg[:,:],300.0/27.2114,0.0,eg[0],ec[0:6],eg[0:6],0.08/27.2114,7e-4)
+    #plt.plot((om_in - om_out)*27.2114,sig_rixs,'-')
+    #plt.show()
+
+    assert sig_rixs.size == om_out.size
+    
+
+def test_xas_cross_section2():
+    x=np.linspace(-2.0,2.0,256)
+    omega=0.45e0/27.2114e0
+    mu=1713.52e0
+    deltax=(x[-1] - x[0])/(256 - 1)
+
+    V_g=fun.harmonic_pot(omega,mu,x,0.0e0)
+    V_c=fun.harmonic_pot(omega,mu,x,0.3e0)+ 300.0/27.2114
+    
+    om,sig_xas=fun.compute_xas(mu,x,V_g,V_c,0.08/27.2114)
+    plt.plot(om*27.2114,sig_xas,'-')
+    plt.show()
+
+    assert sig_xas.size == om.size
+
+def test_rixs_cross_section2():
+    x=np.linspace(-2.0,2.0,256)
+    omega=0.45e0/27.2114e0
+    mu=1713.52e0
+    deltax=(x[-1] - x[0])/(256 - 1)
+
+    V_g=fun.harmonic_pot(omega,mu,x,0.0e0)
+    V_c=fun.harmonic_pot(omega,mu,x,0.3e0) + 300.0/27.2114
+    
+    om_in=300.0/27.2114
+    om_out,sig_rixs=fun.compute_rixs(om_in,mu,x,V_g,V_c,V_g,0.08/27.2114)
     plt.plot((om_in - om_out)*27.2114,sig_rixs,'-')
     plt.show()
 
     assert sig_rixs.size == om_out.size
-    
