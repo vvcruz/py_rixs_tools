@@ -112,7 +112,7 @@ def franck_condon(x,u,w,dipole=None):
     """
     computes the franck-condon amplitude between real vectors u and w FC = < u | w >
     """
-    if(dipole == None):
+    if(dipole is None):
         dipole = np.ones(x.shape,dtype=float)
 
     deltax=x[1]-x[0]
