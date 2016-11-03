@@ -43,8 +43,8 @@ for line in input_file:
             x0_g=float(words[3])
             V_g_min=float(words[4])
         else:
-            pot_g='harm'
-            x,V_g=np.genfromtxt(words[2],dtype=float,skipheader=1,unpack=True)
+            pot_g=words[1]
+            x,V_g=np.genfromtxt(words[1],dtype=float,skip_header=1,unpack=True)
     elif(words[0] == 'decaying_pot'):
         if(words[1]=='harm'):
             pot_c='harm'
@@ -52,8 +52,8 @@ for line in input_file:
             x0_c=float(words[3])
             V_c_min=float(words[4])
         else:
-            pot_c=words[2]
-            x,V_c=np.genfromtxt(words[2],dtype=float,skipheader=1,unpack=True)
+            pot_c=words[1]
+            x,V_c=np.genfromtxt(words[1],dtype=float,skip_header=1,unpack=True)
     elif(words[0] == 'final_pot'):
         if(words[1]=='harm'):
             pot_f='harm'
@@ -61,8 +61,8 @@ for line in input_file:
             x0_f=float(words[3])
             V_f_min=float(words[4])
         else:
-            pot_f=words[2]
-            x,V_f=np.genfromtxt(words[2],dtype=float,skipheader=1,unpack=True)
+            pot_f=words[1]
+            x,V_f=np.genfromtxt(words[1],dtype=float,skip_header=1,unpack=True)
         
 
 if x is None:
@@ -106,3 +106,5 @@ elif(runtype=='rixs'):
     else:
         plt.plot((omega_out)*ev,sig_rixs,'-')
         plt.show()
+else:
+    print("unrecognized runtype, check input")
