@@ -175,8 +175,8 @@ def test_xas_cross_section2():
     V_c=fun.harmonic_pot(omega,mu,x,0.3e0)+ 300.0/27.2114
     
     om,sig_xas=fun.compute_xas(mu,x,V_g,V_c,0.08/27.2114)
-    plt.plot(om*27.2114,sig_xas,'-')
-    plt.show()
+    #plt.plot(om*27.2114,sig_xas,'-')
+    #plt.show()
 
     assert sig_xas.size == om.size
 
@@ -191,7 +191,7 @@ def test_rixs_cross_section2():
     
     om_in=300.0/27.2114
     om_out,sig_rixs=fun.compute_rixs(om_in,mu,x,V_g,V_c,V_g,0.08/27.2114)
-    plt.plot((om_in - om_out)*27.2114,sig_rixs,'-')
-    plt.show()
+    #plt.plot((om_in - om_out)*27.2114,sig_rixs,'-')
+    #plt.show()
 
     assert sig_rixs.size == om_out.size

@@ -265,3 +265,11 @@ optional:
     sig_rixs=rixs_cross_section(omega_in,omega_out,fc_gc[0,:],fc_fc[:,:],omega_gc,omega_gf,eg[0],ec[0:nc],ef[0:nf],Gamma,Gammaf)
     return omega_out,sig_rixs
     
+
+#-----------------------------------------------------------
+
+def dump_spec(f,header,omega,sigma):
+    print("#"+header,file=f)
+    for i in range(omega.size):
+        print(omega[i],sigma[i],file=f)
+    return

@@ -30,7 +30,11 @@ for line in input_file:
     elif(words[0] == 'eloss' or words[0] == 'Eloss'):
         eloss=True
     elif(words[0] == 'dump'):
-        dump_data=True
+        dump=True
+        if(len(words)!=1):
+            output_file=open(words[1],'w')
+        else:
+            output_file=open('default.spec','w')
     elif(words[0] == 'xrange'):
         xi=float(words[1])
         xf=float(words[1])
@@ -95,16 +99,28 @@ if(runtype=='rixs'):
 
 if(runtype=='xas'):
     omega,sig_xas=fun.compute_xas(mu/amu,x,V_g,V_c,Gamma/ev)
+    if(dump): fun.dump_spec(output_file,"XAS spectrum",omega*ev,sig_xas)
     if(plot_graph):
         plt.plot(omega*ev,sig_xas,'-')
+        plt.xlabel(r'$\omega$ (eV)', fontsize=20)
+        plt.ylabel(r'$\sigma$ (arb. units)', fontsize=20)
         plt.show()
 elif(runtype=='rixs'):
     omega_out,sig_rixs=fun.compute_rixs(omega_in/ev,mu/amu,x,V_g,V_c,V_g,Gamma/ev)
+    if(dump and eloss): 
+        fun.dump_spec(output_file,"RIXS spectrum, omega="+str(omega_in)+"eV",omega_in - (omega_out*ev),sig_rixs)
+    elif(dump):
+        fun.dump_spec(output_file,"RIXS spectrum, omega="+str(omega_in)+"eV",(omega_out*ev),sig_rixs)
+
     if(plot_graph and eloss):
         plt.plot(omega_in - (omega_out*ev),sig_rixs,'-')
+        plt.xlabel(r'$\omega - \omega^\prime$ (eV)', fontsize=20)
+        plt.ylabel(r'$\sigma$ (arb. units)', fontsize=20)
         plt.show()
     else:
         plt.plot((omega_out)*ev,sig_rixs,'-')
+        plt.xlabel(r"$\omega^\prime$ (eV)", fontsize=20)
+        plt.ylabel(r'$\sigma$ (arb. units)', fontsize=20)
         plt.show()
 else:
     print("unrecognized runtype, check input")
